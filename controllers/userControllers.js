@@ -70,3 +70,54 @@ export const confirmar = async (req, res) => {
     
   }
 }
+
+export const olvidePassword = async (req, res) => {
+  const { email } = req.body 
+  const usuario = await User.findOne({email})
+  if(!usuario){
+    const error = new Error("Usuario no reguistrado")
+    return res.status(404).json({ msg: error.message })
+  }
+  try {
+    usuario.token = generateId();
+    await usuario.save();
+    res.json({msg: 'Enviamos un email con los pasos a seguir'})
+  } catch (error) {
+    console.log("🚀 ~ file: userControllers.js ~ line 86 ~ olvidePassword ~ error", error)
+    
+  }
+}
+
+export const comprobadoToken = async (req, res) => {
+  const { token } = req.params;
+  const tokenValido = await User.findOne({token})
+  if(tokenValido){
+    res.json({msg:'Token valido'})
+  }else{
+    const error = new Error("Token no valido");
+    return res.status(403).json({ msg: error.message });
+  }
+  
+}
+
+export const nuevoPassword =async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const usuario = await User.findOne({token})
+  if(!usuario){
+    const error = new Error("Token no valido");
+    return res.status(403).json({ msg: error.message });
+  }
+
+  try {
+    usuario.password = password;
+    usuario.token = '';
+    await usuario.save();
+    res.json({msg: 'Password moificado correctamente'})
+  } catch (error) {
+    console.log("🚀 ~ file: userControllers.js ~ line 116 ~ nuevoPassword ~ error", error)
+    
+  }
+  
+}
