@@ -20,7 +20,7 @@ const proyectoSchema = mongoose.Schema({
         trim: true,
         required: true
     },
-    Creator: {
+    creator: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
