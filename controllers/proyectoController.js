@@ -34,9 +34,51 @@ export const obtenerProyecto = async (req, res) => {
     res.json(proyecto)
 }
 
-export const editarProyecto = (req, res) => {}
+export const editarProyecto = async (req, res) => {
+    const {id} = req.params;
+    const proyecto = await Proyecto.findById(id);
 
-export const eliminarProyecto = (req, res) => {}
+    if(!proyecto){
+        const error = new Error('Proyecto no encontrado')
+        return res.status(404).json({msg: error.message})
+    }
+    if(proyecto.creator.toString.toString() !== req.usuario._id.toString()){
+        const error = new Error('Accion no valida')
+        return res.status(401).json({msg: error.message})
+    }
+    proyecto.name = req.body.name || proyecto.name;  
+    proyecto.description = req.body.description || proyecto.description;  
+    proyecto.cliente = req.body.cliente || proyecto.cliente;  
+    try {
+        const almacenarProyecto = await proyecto.save()
+        res.json(almacenarProyecto)
+    } catch (error) {
+        console.log("🚀 ~ file: proyectoController.js ~ line 56 ~ editarProyecto ~ error", error)
+        
+    }
+}
+
+export const eliminarProyecto = async (req, res) => {
+    const {id} = req.params;
+    const proyecto = await Proyecto.findById(id);
+
+    if(!proyecto){
+        const error = new Error('Proyecto no encontrado')
+        return res.status(404).json({msg: error.message})
+    }
+    if(proyecto.creator.toString.toString() !== req.usuario._id.toString()){
+        const error = new Error('Accion no valida')
+        return res.status(401).json({msg: error.message})
+    }
+
+    try {
+        await proyecto.deleteOne();
+        res.json({msg: 'Proyecto eliminado'})
+    } catch (error) {
+        console.log("🚀 ~ file: proyectoController.js ~ line 77 ~ eliminarProyecto ~ error", error)
+        
+    }
+}
 
 export const agregarColaborado = (req, res) => {}
 
